@@ -636,6 +636,7 @@ function rAlim(){
         </div>
         <div style="display:flex;align-items:center;gap:8px;margin-left:12px">
           <button class="btn bsm bpr-btn" onclick="event.stopPropagation();printSaticiTumFaturalar(${t.id})" title="Tüm faturaları toplu yazdır">🖨️ Toplu</button>
+          <button class="btn bsm bd-btn" onclick="event.stopPropagation();delSat(${t.id})" title="Satıcıyı sil">🗑️</button>
           <span id="satici-${t.id}-icon" style="color:var(--text3);font-size:18px;transition:transform .25s">▼</span>
         </div>
       </div>
