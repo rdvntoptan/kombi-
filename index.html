@@ -364,6 +364,7 @@ function doLogin(){
     curSec=loginTab==='admin'?'dashboard':'stoklar';
     history.replaceState({sec:curSec},'');
     tick();
+    loadAll();
     // Verileri API'den yükle
     loadAll();
   } else {
