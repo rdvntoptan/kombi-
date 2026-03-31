@@ -1588,23 +1588,23 @@ async function delRec(type,id){
     if(a){
       for(const x of (a.urunler||[])){const u=S.urunler.find(y=>y.id===x.urunId);if(u){u.stok=Math.max(0,u.stok-x.miktar);await apiPut('/urunler/'+u.id,u);}}
       const t=S.saticilar.find(x=>x.id===a.saticiId);if(t){t.toplamBorc=Math.max(0,t.toplamBorc-a.toplam);t.odenen=Math.max(0,t.odenen-(a.odened||0));await apiPut('/saticilar/'+t.id,t);}
-      await apiDel('/alislar/'+id);S.alislar=S.alislar.filter(x=>x.id!==id);
+      await apiDel('/alislar/'+id);
     }
   } else if(type==='satis'){
     const s=S.satislar.find(x=>x.id===id);
     if(s){
       const u=S.urunler.find(x=>x.id===s.urunId);if(u){u.stok+=s.miktar;await apiPut('/urunler/'+u.id,u);}
       const m=S.musteriler.find(x=>x.id===s.musteriId);if(m){m.toplamBorc=Math.max(0,m.toplamBorc-s.toplam);m.odenen=Math.max(0,m.odenen-(s.odened||0));await apiPut('/musteriler/'+m.id,m);}
-      await apiDel('/satislar/'+id);S.satislar=S.satislar.filter(x=>x.id!==id);
+      await apiDel('/satislar/'+id);
     }
   } else if(type==='gider'){
-    await apiDel('/giderler/'+id);S.giderler=S.giderler.filter(x=>x.id!==id);
+    await apiDel('/giderler/'+id);
   }
-  render();
+  await loadAll();
 }
-async function delUrun(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;await apiDel('/urunler/'+id);S.urunler=S.urunler.filter(x=>x.id!==id);render();}
-async function delMus(id){if(!confirm('Bu müşteriyi silmek istiyor musunuz?'))return;await apiDel('/musteriler/'+id);S.musteriler=S.musteriler.filter(x=>x.id!==id);render();}
-async function delSat(id){if(!confirm('Bu satıcıyı silmek istiyor musunuz?'))return;await apiDel('/saticilar/'+id);S.saticilar=S.saticilar.filter(x=>x.id!==id);render();}
+async function delUrun(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;await apiDel('/urunler/'+id);await loadAll();}
+async function delMus(id){if(!confirm('Bu müşteriyi silmek istiyor musunuz?'))return;await apiDel('/musteriler/'+id);await loadAll();}
+async function delSat(id){if(!confirm('Bu satıcıyı silmek istiyor musunuz?'))return;await apiDel('/saticilar/'+id);await loadAll();}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function updF(id,f,v){const u=S.urunler.find(x=>x.id===id);if(u)u[f]=parseFloat(v)||0;}
