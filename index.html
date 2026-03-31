@@ -1224,7 +1224,7 @@ function updateAlisKalanGoster(){
   if(el&&toplam>0)el.innerHTML=`Toplam: <b>${fmt(toplam)}</b> — Ödenen: <b style="color:var(--green)">${fmt(odenen)}</b> — Kalan: <b style="color:var(--red)">${fmt(Math.max(0,kalan))}</b>`;
 }
 
-function alisYeniSaticiEkle(){
+async function alisYeniSaticiEkle(){
   const ad=document.getElementById('f-yeni-satici-ad')?.value?.trim();
   const tel=document.getElementById('f-yeni-satici-tel')?.value?.trim();
   if(!ad)return alert('Firma adı zorunludur.');
