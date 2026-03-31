@@ -1603,7 +1603,7 @@ async function delRec(type,id){
   await loadAll();
 }
 async function delUrun(id){if(!confirm('Bu ürünü silmek istiyor musunuz?'))return;await apiDel('/urunler/'+id);await loadAll();}
-async function delMus(id){if(!confirm('Bu müşteriyi silmek istiyor musunuz?'))return;await apiDel('/musteriler/'+id);
+async function delMus(id){if(!confirm('Bu müşteriyi silmek istiyor musunuz?'))return;await apiDel('/musteriler/'+id);await loadAll();}
 async function delSat(id){if(!confirm('Bu satıcıyı silmek istiyor musunuz?'))return;await apiDel('/saticilar/'+id);await loadAll();}
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
