@@ -364,7 +364,6 @@ function doLogin(){
     curSec=loginTab==='admin'?'dashboard':'stoklar';
     history.replaceState({sec:curSec},'');
     tick();
-    loadAll();
     // Verileri API'den yükle
     loadAll();
   } else {
@@ -1228,11 +1227,14 @@ async function alisYeniSaticiEkle(){
   const ad=document.getElementById('f-yeni-satici-ad')?.value?.trim();
   const tel=document.getElementById('f-yeni-satici-tel')?.value?.trim();
   if(!ad)return alert('Firma adı zorunludur.');
+  
+  // Satıcıyı API'ye kaydet
   const yeni=await apiPost('/saticilar',{ad,tel:tel||''});
   S.saticilar.push(yeni);
+  
   const sel=document.getElementById('f-satId');
   if(sel){const opt=document.createElement('option');opt.value=yeni.id;opt.text=yeni.ad;sel.appendChild(opt);sel.value=yeni.id;}
-  // Ürün eklenmiş mi kontrol et
+  
   const urunAd=document.getElementById('f-ys-urun-ad')?.value?.trim();
   const urunKat=document.getElementById('f-ys-urun-kat')?.value?.trim();
   const urunBirim=document.getElementById('f-ys-urun-birim')?.value;
@@ -1240,14 +1242,12 @@ async function alisYeniSaticiEkle(){
   const urunMaliyet=parseFloat(document.getElementById('f-ys-urun-maliyet')?.value)||0;
   const urunSatis=parseFloat(document.getElementById('f-ys-urun-satis')?.value)||0;
   if(urunAd&&urunStok>0){
-    const yeniUrun={id:uid(),ad:urunAd,kategori:urunKat||'',birim:urunBirim||'Adet',stok:urunStok,maliyet:urunMaliyet,satisFiyat:urunSatis,sonH:todayStr()};
+    const yeniUrun=await apiPost('/urunler',{ad:urunAd,kategori:urunKat||'',birim:urunBirim||'Adet',stok:urunStok,maliyet:urunMaliyet,satisFiyat:urunSatis});
     S.urunler.push(yeniUrun);
-    // Sepete de ekle
     if(urunStok>0&&urunMaliyet>0){
       alisSepet.push({urunId:yeniUrun.id,urunAd:yeniUrun.ad,birim:yeniUrun.birim,miktar:urunStok,birimFiyat:urunMaliyet,toplam:urunStok*urunMaliyet});
       renderSepet();
     }
-    // Ürün select'ini güncelle
     const urunSel=document.getElementById('a-urunId');
     if(urunSel){const o=document.createElement('option');o.value=yeniUrun.id;o.text=`${yeniUrun.ad} (${yeniUrun.stok} ${yeniUrun.birim})`;urunSel.appendChild(o);}
   }
@@ -1796,6 +1796,13 @@ function printSatici(id){
 
 async function loadAll() {
   try {
+    const fixDate = d => {
+      if(!d) return '';
+      const s = String(d);
+      if(s.includes('T')) return s.split('T')[0];
+      if(s.includes('.')) { const [g,a,y]=s.split('.'); return y+'-'+a+'-'+g; }
+      return s;
+    };
     const [urunler, musteriler, saticilar, alislar, satislar, giderler] = await Promise.all([
       apiGet('/urunler'), apiGet('/musteriler'), apiGet('/saticilar'),
       apiGet('/alislar'), apiGet('/satislar'), apiGet('/giderler')
@@ -1816,7 +1823,7 @@ async function loadAll() {
       odenen:parseFloat(t.odenen||0)
     }));
     S.alislar = (alislar||[]).map(a=>({
-      id:a.id, tarih:a.tarih, saat:a.saat||'',
+      id:a.id, tarih:fixDate(a.tarih), saat:a.saat||'',
       saticiId:a.saticiId||a.satici_id,
       saticiAd:a.saticiAd||a.satici_ad||'',
       urunler:a.urunler||[],
@@ -1826,7 +1833,7 @@ async function loadAll() {
       aciklama:a.aciklama||''
     }));
     S.satislar = (satislar||[]).map(s=>({
-      id:s.id, tarih:s.tarih, saat:s.saat||'',
+      id:s.id, tarih:fixDate(s.tarih), saat:s.saat||'',
       musteriId:s.musteriId||s.musteri_id,
       musteriAd:s.musteriAd||s.musteri_ad||'',
       urunId:s.urunId||s.urun_id,
@@ -1839,7 +1846,7 @@ async function loadAll() {
       aciklama:s.aciklama||''
     }));
     S.giderler = (giderler||[]).map(g=>({
-      id:g.id, tarih:g.tarih, saat:g.saat||'',
+      id:g.id, tarih:fixDate(g.tarih), saat:g.saat||'',
       aciklama:g.aciklama||'', kategori:g.kategori||'Genel',
       tutar:parseFloat(g.tutar||0)
     }));
